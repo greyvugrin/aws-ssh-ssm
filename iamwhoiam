@@ -1,0 +1,52 @@
+set -e -o pipefail
+
+duration=3600
+username=
+
+directory=$(which iamwhoiam)
+# remove /iamwhoiam from the $directory variable
+directory=${directory%/*}
+
+config_path=$directory/config
+
+if ! [ -s $config_path ]
+then
+  echo "🦞 Missing Config file! Steps:"
+  echo "- Create config file: 'cd $directory && cp config.example config'"
+  echo "- Fill it out"
+  echo "- Retry"
+  exit
+fi
+
+# Loop though config file and set known variables.
+# Config file cannot contain comments or this breaks
+while IFS='=' read -r key value; do
+  if [ $key == 'username' ]
+  then
+    username=$value
+  fi
+  if [ $key == 'duration' ]
+  then
+    duration=$value
+  fi
+done <$config_path
+
+if [ -z "$username" ]
+then
+  echo "🦞 Missing AWS username! Please set in the config file"
+  echo "Config file: $config_path"
+  exit
+fi
+
+echo "🏷  AWS Username - $username"
+echo "⏰ Duration - $duration seconds"
+
+# Get AWS device name and store in variable
+# example: arn:aws:iam::000110101020:mfa/grey
+iam_device=$(aws iam list-mfa-devices --user-name $username --query "MFADevices[0].SerialNumber" | cut -f2 -d\")
+
+# Set or refresh creds if expired.
+aws-mfa --duration $duration --device $iam_device \
+--short-term-suffix mfa \
+--long-term-suffix none \
+--force

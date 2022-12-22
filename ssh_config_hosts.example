@@ -1,0 +1,9 @@
+# Setup individual hosts. Note:
+# - These need to be enabled for SSM in AWS Console
+# - The Host must start with aa_
+# - The Hostname must be the instance ID
+# - The User is the instance user. For Ubuntu, it's ubuntu. It could also be root. Check AMI info to find out.
+
+Host aa_your_server
+  Hostname i-XXXX
+  User ubuntu
