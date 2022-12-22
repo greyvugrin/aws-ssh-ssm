@@ -1,5 +1,7 @@
 # Intro
-SSH into AWS EC2 instances securely, using MFA + AWS temporary credentials.
+<img alt="Demo showing use of the terminal command" src="ssh-flow.gif" />
+
+SSH into AWS EC2 instances securely via SSM using MFA + AWS temporary credentials.
 - ✅ No hardcoded IP addresses
 - ✅ No shared PEM files. Uses temporary SSH keys
 - ✅ Access controlled in AWS
