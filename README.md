@@ -24,7 +24,7 @@ SSH into AWS EC2 instances securely via SSM using MFA + AWS temporary credential
 
 - Each user must have a MFA device assigned. LINK
 - Instances
-  - Each instance must have a policy attached to its role that enables SSM
+  - Each instance must have a policy attached to its role that enables SSM (`AmazonSSMManagedInstanceCore` is the AWS-managed policy that does this)
   - The role must be tagged with the correct user for SSM to run (ex: `ubuntu` for Ubuntu AMIs)
   - The SSM agent must be running (AWS Linux & Ubuntu instances have this by default)
 
@@ -107,7 +107,7 @@ scp aa_your_instance_name:test-html/index.html .
 
 **Instance is offline**
 - Check SSM panel in AWS to see the list of running instances
-- You may need to restart the instance
+- You may need to restart the instance, especially if you added the SSM policy to the instance role after the instance was created.
 
 # TODO
 
