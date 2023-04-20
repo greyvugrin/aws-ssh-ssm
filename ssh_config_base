@@ -8,7 +8,7 @@ Match Host aa_*
     # Ensures our SSH sessions remain alive when idle
     TCPKeepAlive yes
     ServerAliveInterval 30
-    ConnectTimeout 10
+    ConnectTimeout 30
 
     # Use temp generated ssh key for connection.
     IdentityFile ~/.ssh/ssm-ssh-tmp
