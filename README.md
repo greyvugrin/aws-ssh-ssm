@@ -82,8 +82,9 @@ SSH into AWS EC2 instances securely via SSM using MFA + AWS temporary credential
 
 ### Instance Setup
 - Each instance must have an IAM role assigned to it. [AWS documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html#attach-iam-role)
-- Each instance must have a policy attached to its role that enables SSM (`AmazonSSMManagedInstanceCore` is the AWS-managed policy that does this)
-- The role must be tagged with the correct user for SSM to run (ex: `ubuntu` for Ubuntu AMIs)
+- Each instance must have a policy attached to its role that enables SSM (`AmazonSSMManagedInstanceCore` is the AWS-managed policy that does this) [AWS documentation](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started-instance-profile.html)
+- The role must be tagged with the correct user for SSM to run (ex: `ubuntu` for Ubuntu AMIs).
+Ex: Tag Name: `SSMSessionRunAs` Tag Value:	`ubuntu`
 - The SSM agent must be running (AWS Linux & Ubuntu instances have this by default)
 - If this step is taken care of, you will see the instance in the SSM Overview panel in AWS (Node Management > Fleet Manager)
 
@@ -169,6 +170,11 @@ scp aa_your_instance_name:test-html/index.html .
 **Instance is offline**
 - Check SSM panel in AWS to see the list of running instances
 - You may need to restart the instance, especially if you added the SSM policy to the instance role after the instance was created.
+
+**Permission errors for user or instance**
+- Check the IAM policy attached to the user and instance role
+- Check the tags on the instance role. It should have a tag with the key `SSM_USER` and the value should be the username of the user you're trying to ssh as.
+- A fast way to verify that your user can run sessions is to to use the AWS console to start a session on the instance (go to AWS Systems Manager > Session Manager > Start Session) and select the instance. If you can't do that, you won't be able to use this tool.
 
 # TODO
 
