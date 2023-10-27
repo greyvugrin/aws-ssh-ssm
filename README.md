@@ -18,15 +18,74 @@ SSH into AWS EC2 instances securely via SSM using MFA + AWS temporary credential
   curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
   python3 get-pip.py
   ```
-- AWS MFA pip package installed. `pip install aws-mfa`
+- AWS MFA pip package installed.
+  - Use `pip install aws-mfa` (try pip3 if pip is not found post install)
 
 ## AWS
 
-- Each user must have a MFA device assigned. LINK
-- Instances
-  - Each instance must have a policy attached to its role that enables SSM (`AmazonSSMManagedInstanceCore` is the AWS-managed policy that does this)
-  - The role must be tagged with the correct user for SSM to run (ex: `ubuntu` for Ubuntu AMIs)
-  - The SSM agent must be running (AWS Linux & Ubuntu instances have this by default)
+### User Setup
+- Each user must have a MFA device assigned. [AWS documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html)
+- Each user must have a policy like this (via their group ideally).
+
+  Remember to replace the YOUR_ACCOUNT_ID with your own.
+  If you want to restrict the instances that can be accessed, you can replace the `*` in the `Resource` array with the instance ID, and copy the entry for each instance you want to allow access to.
+
+  <details>
+    <summary>Policy</summary>
+
+    ```
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "VisualEditor0",
+                "Effect": "Allow",
+                "Action": [
+                    "ec2:DescribeInstances",
+                    "ssm:GetConnectionStatus",
+                    "ssm:DescribeSessions",
+                    "ssm:DescribeInstanceProperties",
+                    "ssm:GetCommandInvocation",
+                    "ssm:ListCommands",
+                    "ssm:ListCommandInvocations"
+                ],
+                "Resource": "*"
+            },
+            {
+                "Sid": "VisualEditor1",
+                "Effect": "Allow",
+                "Action": [
+                    "ssm:SendCommand",
+                    "ssm:StartSession"
+                ],
+                "Resource": [
+                    "arn:aws:ec2:*:YOUR_ACCOUNT_ID:instance/*",
+                    "arn:aws:ssm:*::document/SSM-SessionManagerRunShell",
+                    "arn:aws:ssm:*::document/AWS-StartSSHSession",
+                    "arn:aws:ssm:*::document/AWS-RunShellScript",
+                    "arn:aws:ssm:*::document/AWS-StartInteractiveCommand"
+                ]
+            },
+            {
+                "Sid": "VisualEditor4",
+                "Effect": "Allow",
+                "Action": [
+                    "ssm:ResumeSession",
+                    "ssm:TerminateSession"
+                ],
+                "Resource": "arn:aws:ssm:*:*:session/${aws:username}-*"
+            }
+        ]
+    }
+    ```
+  </details>
+
+### Instance Setup
+- Each instance must have an IAM role assigned to it. [AWS documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html#attach-iam-role)
+- Each instance must have a policy attached to its role that enables SSM (`AmazonSSMManagedInstanceCore` is the AWS-managed policy that does this)
+- The role must be tagged with the correct user for SSM to run (ex: `ubuntu` for Ubuntu AMIs)
+- The SSM agent must be running (AWS Linux & Ubuntu instances have this by default)
+- If this step is taken care of, you will see the instance in the SSM Overview panel in AWS (Node Management > Fleet Manager)
 
 # Installation
 Get the location of this folder with `pwd`. Copy and replace it in the commands below where you see *_FOLDER_LOCATION_*.
@@ -67,6 +126,8 @@ Fill out the config file variables.
 | username | The username of your IAM user.  | Yes |
 
 ## Create your SSH hosts file & add hosts
+
+> Note! If you're using this tool on a team, get the ssh_config_hosts file from a teammate.
 
 ```
 cp ssh_config_hosts.example ssh_config_hosts
@@ -112,4 +173,3 @@ scp aa_your_instance_name:test-html/index.html .
 # TODO
 
 - See about AWS_REGION in SSH proxy command
-- Improve AWS requirements portion for instance, IAM setup
