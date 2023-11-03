@@ -165,6 +165,12 @@ ssh aa_your_instance_name
 scp aa_your_instance_name:test-html/index.html .
 ```
 
+# Using with another AWS account
+If you are using a different profile than `default`, you'll need to do 2 extra things:
+- Put `AWS_PROFILE=PROFILE_NAME` before any of the commands above.
+- Add a line to your config file with the IAM username for that account, prefixed with the profile name.
+  Format: `PROFILE_NAME_username=me`. Ex: for a profile called `work`, the line would be `work_username=me`
+
 # Troubleshooting
 
 **Instance is offline**

@@ -13,4 +13,4 @@ Match Host aa_*
     # Use temp generated ssh key for connection.
     IdentityFile ~/.ssh/ssm-ssh-tmp
     # Use ssh-ssm script to connect. Temp MFA credentials are used.
-    ProxyCommand sh -c "AWS_PROFILE=default-mfa AWS_REGION=us-east-2 ssh-ssm.sh %h %r"
+    ProxyCommand sh -c "AWS_PROFILE=${AWS_PROFILE:-default}-mfa AWS_REGION=us-east-2 ssh-ssm.sh %h %r"

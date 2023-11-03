@@ -25,6 +25,12 @@ while IFS='=' read -r key value; do
   then
     username=$value
   fi
+  #  check if name is ${AWS_PROFILE}_username
+  # this allows people to override the username based on the AWS_PROFILE env var
+  if [ $key == "${AWS_PROFILE}_username" ]
+  then
+    username=$value
+  fi
   if [ $key == 'duration' ]
   then
     duration=$value
